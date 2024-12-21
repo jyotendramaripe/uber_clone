@@ -24,6 +24,7 @@ const userSchema = new mongoose.Schema({
     password: {
         type: String,
         required: true,
+        // why we use select: false here?: to prevent the password from being returned in the response while using a GET request
         select: false,
     },
     // used for live tracking
