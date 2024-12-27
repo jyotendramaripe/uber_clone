@@ -1,13 +1,30 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { Link } from "react-router-dom";
+import axios from "axios";
+import { UserDataContext } from "../context/UserContext";
+import { useNavigate } from "react-router-dom";
 
 const UserLogin = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [UserData, setUserData] = useState({});
-  const submitHandler = (e) => {
+  // const [UserData, setUserData] = useState({});
+
+  // yy navigate is a function that is used to navigate to a different page.
+  const navigate = useNavigate();
+  const { user, setUser } = useContext(UserDataContext);
+  const submitHandler = async (e) => {
     e.preventDefault();// this helps to prevent the default behaviour of the form as it will refresh the page.
-    setUserData({ email:email, password:password });
+    const newUser = {
+      email: email,
+      password: password,
+    }
+    const response = await axios.post(`${import.meta.env.VITE_BASE_URL}` + "/users/login", newUser);
+    if(response.status === 200){
+      const data = response.data;
+      setUser(data.user);
+      localStorage.setItem('token', data.token);
+      navigate("/home");
+    }
     // console.log(UserData);
     setEmail("");
     setPassword("");

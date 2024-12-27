@@ -1,19 +1,33 @@
-import React, { useState } from "react";
-import { Link } from "react-router-dom";
-
+import React, { useContext, useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
+import { UserDataContext } from "../context/UserContext";
 const UserSignUp = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [UserData, setUserData] = useState({});
-  const submitHandler = (e) => {
+
+  const navigate = useNavigate();
+
+  const { user, setUser } = useContext(UserDataContext);
+  const submitHandler = async (e) => {
     e.preventDefault(); // this helps to prevent the default behaviour of the form as it will refresh the page.
-    setUserData({
-      fullName: { firstName: firstName, lastName: lastName },
+    const newUser = {
+      fullname: { firstname: firstName, lastname: lastName },
       email: email,
       password: password,
-    });
+    };
+    const response = await axios.post(`${import.meta.env.VITE_BASE_URL}` + "/users/register", newUser);
+    if(response.status === 201){ 
+      setUserData(response.data);
+      const data = response.data;
+      setUser(data.user);
+      // yy token is stored in the local storage so that the user can be logged in even after the page is refreshed.
+      localStorage.setItem('token', data.token);
+      navigate("/home");
+    }
     console.log(UserData);
     setEmail("");
     setFirstName("");
@@ -77,7 +91,7 @@ const UserSignUp = () => {
             placeholder="your password "
           />
           <button className="bg-black mb-3 text-white w-full rounded px-4 py-2 font-semibold">
-            Login
+            Create Account
           </button>
         </form>
         <p className="text-center">
